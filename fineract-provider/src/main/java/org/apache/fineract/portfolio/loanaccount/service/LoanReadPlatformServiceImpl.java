@@ -148,18 +148,23 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFPrintSetup;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HeaderFooter;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.ss.usermodel.Row;
@@ -306,24 +311,41 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     	    	scheduleSheet.getPrintSetup().setPaperSize(HSSFPrintSetup.A4_PAPERSIZE);
     	        Footer ft = scheduleSheet.getFooter();
     	        Header ht=scheduleSheet.getHeader();
-    	        ht.setCenter("Group Loan Ledger");
+    	       // scheduleSheet.setAutobreaks(false);
+    	        //scheduleSheet.getPrintSetup().setFitWidth((short)2);
+    	        String groupName = retrieveGroupName(groupId);
+    	        //ht.setCenter("Group Loan Ledger");
+    	        ht.setCenter("Schedule-"+ groupName);
     	        ft.setRight( "Page " + HeaderFooter.page() + " of " + HeaderFooter.numPages() );
                 ft.setLeft(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-       	    	scheduleSheet.addMergedRegion(new CellRangeAddress(2,2,3,7));
+                int z;
+                Font my_font_header=workbook.createFont();
+                /* set the weight of the font */
+ 	    	   my_font_header.setBoldweight(Font.BOLDWEIGHT_BOLD);
+ 	    	   my_font_header.setFontName("ARIAL NARROW");
+ 	    	   my_font_header.setFontHeightInPoints((short)9);
+                Font my_font=workbook.createFont();
+                my_font.setFontName("ARIAL NARROW");
+                my_font.setFontHeightInPoints((short)9);
+       	    	scheduleSheet.addMergedRegion(new CellRangeAddress(2,2,0,17));//(2,2,3,7)
        	    	Row rowSecond = scheduleSheet.createRow(2);
-       	    	rowSecond.setHeight((short) 1000);
-//       	    	CellStyle cs = workbook.createCellStyle();
-//       	        cs.setWrapText(true);
-       	        Cell address = rowSecond.createCell(3);
-       	//        address.setCellStyle(cs);
-       	        address.setCellValue("Corporate Office: House No.: C-9/94, 1st Floor,ParthSarthi Extension, \n Rameshawram Colony, Baghmungaliya, Near Gayatri Vihar, \n Bhopal, Madhya Pradesh - 462043");
+       	    	rowSecond.setHeight((short) 500);//1000
+     	         CellStyle cs = workbook.createCellStyle();//
+     	         cs.setFont(my_font);
+     	         cs.setWrapText(false);//true  //
+       	         Cell address = rowSecond.createCell(0);
+       	         //address.setCellStyle(cs);//
+       	        address.setCellValue("Corporate Office: H No. B-8, Deluxe Rameswaram Colony, Behind Sharda Vidya Mandir School, Bagmugaliya, Bhopal, \n Madhya Pradesh,  PIN-462043");
     	    	InputStream inputStream;
     	    	byte[] bytes;
     	    	 int pictureIdx = 0 ;
     	    	 
     	    	try {
     	    		// Bharath changed for checking need to change in server
-    	    		inputStream= new FileInputStream("C:/Users/Administrator/jigyasa.png"); 
+    	    		inputStream= new FileInputStream("C:/Users/Administrator/jigyasa.png");  //correct
+    	    	//	inputStream= new FileInputStream("/home/ayyappan/Pictures/jigyasa.png");
+    	    		
+    	    		
     	    		
 //    	    		inputStream= new FileInputStream("/home/balaji/jigyasa.png");
     	    		
@@ -344,7 +366,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     	    	   CreationHelper helper = workbook.getCreationHelper();
     	    	   //Creates the top-level drawing patriarch.
     	    	   Drawing drawing = scheduleSheet.createDrawingPatriarch();
-
+    	    	   Drawing drawing1 = scheduleSheet.createDrawingPatriarch();
     	    	   //Create an anchor that is attached to the worksheet
     	    	   ClientAnchor anchor = helper.createClientAnchor();
 
@@ -357,11 +379,58 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
 
     	    	   //Creates a picture
     	    	   Picture pict = drawing.createPicture(anchor, pictureIdx);
-    	    	   //Reset the image to the original size
-    	    	   pict.resize(.8); //don't do that. Let the anchor resize the image!
-
-    	    	  //Create the Cell B3      	    	    	     	    	
+    	    	   
+    	    	 //Reset the image to the original size
+    	    	   pict.resize(.4); //don't do that. Let the anchor resize the image!
+    	    	
+    	    	   
+                  
+                   /* attach the font to the style created earlier */
+                  
+                   CellStyle borderStyle = workbook.createCellStyle();
+                  // borderStyle.setAlignment(CellStyle.ALIGN_R);
+                   borderStyle.setFont(my_font);
+                   borderStyle.setBorderBottom(CellStyle.BORDER_THIN);
+                   borderStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+                   borderStyle.setBorderLeft(CellStyle.BORDER_THIN);
+                   borderStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+                   borderStyle.setBorderRight(CellStyle.BORDER_THIN);
+                   borderStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+                   borderStyle.setBorderTop(CellStyle.BORDER_THIN);
+                   borderStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+                   
+                   
+                   CellStyle cellStylefooter = workbook.createCellStyle();
+                   cellStylefooter.setFont(my_font_header);
+                   cellStylefooter.setBorderBottom(CellStyle.BORDER_THIN);
+                   cellStylefooter.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+                   cellStylefooter.setBorderLeft(CellStyle.BORDER_THIN);
+                   cellStylefooter.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+                   cellStylefooter.setBorderRight(CellStyle.BORDER_THIN);
+                   cellStylefooter.setRightBorderColor(IndexedColors.BLACK.getIndex());
+                   cellStylefooter.setBorderTop(CellStyle.BORDER_THIN);
+                   cellStylefooter.setTopBorderColor(IndexedColors.BLACK.getIndex());
+                   
+                   CellStyle cellStyleheader = workbook.createCellStyle();
+                   cellStyleheader.setFont(my_font_header); 
+                   cellStyleheader.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+                   //cellStyleheader.setFillBackgroundColor(IndexedColors.RED.getIndex());
+                   cellStyleheader.setFillPattern(CellStyle.SOLID_FOREGROUND);
+                   cellStyleheader.setBorderBottom(CellStyle.BORDER_THIN);
+                   cellStyleheader.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+                   cellStyleheader.setBorderLeft(CellStyle.BORDER_THIN);
+                   cellStyleheader.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+                   cellStyleheader.setBorderRight(CellStyle.BORDER_THIN);
+                   cellStyleheader.setRightBorderColor(IndexedColors.BLACK.getIndex());
+                   cellStyleheader.setBorderTop(CellStyle.BORDER_THIN);
+                   cellStyleheader.setTopBorderColor(IndexedColors.BLACK.getIndex());
+                   cellStyleheader.setWrapText(true);
+                   CellStyle cellStyle = workbook.createCellStyle();
+       	        cellStyle.setFont(my_font_header);
+    	    	  //Create the Cell B3     
+                  
     	    	Row row1 = scheduleSheet.createRow(3);
+    	    	
     	    	row1.setHeight((short)500);
     	    	scheduleSheet.setColumnWidth(0, 4000);
     	    	scheduleSheet.setColumnWidth(1, 5000);
@@ -377,19 +446,106 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     	    	row1.createCell(9).setCellValue(groupDetails.getLoName());
     	    	row1.createCell(10).setCellValue("Meeting Time:");
     	    	row1.createCell(11).setCellValue(groupDetails.getMeeting_time());
-
+    	    	for(z=0;z<=11;z++)
+    	    	{
+                 row1.getCell(z).setCellStyle(cellStyleheader);
+                 
+    	    	}
                 int startRow = 4;
                 int count1 =0;
             	Row header =  scheduleSheet.createRow(4);
+            	header.setHeight((short) 800);
             	Row footer1 = scheduleSheet.createRow(groupLoans.size() + 8);
             	Row footer2 = scheduleSheet.createRow(groupLoans.size() + 9);
             	Row footer3 = scheduleSheet.createRow(groupLoans.size() + 10);
             	Row totalRow = scheduleSheet.createRow(groupLoans.size() + 6);
+            //	totalRow.setRowStyle(cellStylefooter);
             	totalRow.createCell(9).setCellValue("Total");
+            	totalRow.getCell(9).setCellStyle(cellStylefooter);
             	totalRow.createCell(6).setCellValue("Total");
-   	    	 CellStyle cellStyle = workbook.createCellStyle();
-	         cellStyle.setAlignment(CellStyle.ALIGN_CENTER);
-	
+            	totalRow.getCell(6).setCellStyle(cellStylefooter);
+            	
+            	totalRow.createCell(0).setCellValue("Total Client");
+            	totalRow.getCell(0).setCellStyle(cellStylefooter);
+            	totalRow.createCell(1).setCellValue(groupLoans.size());
+            	totalRow.getCell(1).setCellStyle(borderStyle);
+            	totalRow.createCell(2).setCellStyle(borderStyle);
+            	totalRow.createCell(3).setCellStyle(borderStyle);
+            	totalRow.createCell(4).setCellStyle(borderStyle);
+            	totalRow.createCell(5).setCellStyle(borderStyle);
+            	totalRow.createCell(8).setCellStyle(borderStyle);
+            	
+            	
+	         //borderStyle.setAlignment(CellStyle.ALIGN_CENTER);
+            	
+	         
+            	//to get how many number no page we need to print the image
+            	int noOfPages=0;
+            	if(groupLoans.get(0).getInstallment()==9)
+            	{
+            		noOfPages=3;
+            	}
+            	else if(groupLoans.get(0).getInstallment()==6)
+            	{
+            		noOfPages=2;
+            	}
+            	else if(groupLoans.get(0).getInstallment()==12)
+            	{
+            		noOfPages=4;
+            	}
+            	else if(groupLoans.get(0).getInstallment()==24)
+            	{
+            		noOfPages=8;
+            	}
+            	else if(groupLoans.get(0).getInstallment()==18)
+            	{
+            		noOfPages=6;
+            	}
+            	int imageColumnStart=21,imageColumnEnd,addressColumnEnd=42,imageCount=1;
+            	
+ 	    	   do
+ 	    	   {
+ 	    		   
+ 	    		   
+ 	    		   //Create an anchor that is attached to the worksheet
+     	    	   ClientAnchor anchor1 = helper.createClientAnchor();
+     	    	   
+ 	    		 
+     	    	   
+ 	    		 //create an anchor with upper left cell _and_ bottom right cell
+     	    	   anchor1.setCol1(imageColumnStart); //Column B
+     	    	   anchor1.setRow1(0); //Row 3
+     	    	   anchor1.setCol2(imageColumnStart+1); //Column C
+     	    	   anchor1.setRow2(1); //Row 4
+     	  
+     	    	 //Creates a picture
+     	    	   Picture pict1 = drawing1.createPicture(anchor1, pictureIdx);
+     	    	   
+     	    	   
+     	    	   //Reset the image to the original size
+     	    	  pict1.resize(.4); //don't do that. Let the anchor resize the image!
+     	    	   
+     	    	   
+     	    	   //displaying address in each page
+     	    	   scheduleSheet.addMergedRegion(new CellRangeAddress(2,2,(imageColumnStart-1),(addressColumnEnd-2)));//(2,2,3,7)
+           	    	/*if(imageCount==(noOfPages-1))
+           	    	{
+           	    		scheduleSheet.addMergedRegion(new CellRangeAddress(2,2,imageColumnStart,(addressColumnEnd-2)));
+           	    	}*/
+           	    	rowSecond.setHeight((short) 500);//1000
+         	         
+           	        Cell address1 = rowSecond.createCell(imageColumnStart-1);
+           	         
+           	        address1.setCellValue("Corporate Office: H No. B-8, Deluxe Rameswaram Colony, Behind Sharda Vidya Mandir School, Bagmugaliya, Bhopal, \n Madhya Pradesh, PIN-462043");
+        	    	
+     	    	   
+     	    	   
+     	    	   imageColumnStart+=24;
+     	    	   imageColumnEnd=imageColumnStart+1;
+     	    	   addressColumnEnd+=23;
+     	    	   imageCount++;
+     	    	  
+ 	    	   }while(imageCount<=noOfPages);
 
     	    	for (int i=0; i<groupLoans.size();i++){
                 	if(count1 == 0){               		
@@ -407,9 +563,17 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                 	header.createCell(4).setCellValue("Loan Product");
                 	header.createCell(5).setCellValue("Loan Disbursement Date");
                 	totalRow.createCell(7).setCellFormula("SUM(H"+(startRow+2)+":H"+(groupLoans.size()+startRow+2)+")");
+                	totalRow.getCell(7).setCellStyle(borderStyle);
                 	totalRow.createCell(10).setCellFormula("SUM(K"+(startRow+2)+":K"+(groupLoans.size()+startRow+2)+")");
+                	totalRow.createCell(10).setCellStyle(borderStyle);
                 	totalRow.createCell(11).setCellFormula("SUM(L"+(startRow+2)+":L"+(groupLoans.size()+startRow+2)+")");
+                	totalRow.createCell(11).setCellStyle(borderStyle);
 
+                	}
+                	for(z=0;z<=11;z++)
+                	{
+                		header.getCell(z).setCellStyle(cellStyleheader);
+                		
                 	}
                 	Row rowNext=scheduleSheet.createRow(startRow+1);
                 	rowNext.createCell(0).setCellValue(groupLoans.get(i).getClientName());
@@ -418,103 +582,235 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
                 	rowNext.createCell(2).setCellValue(groupLoans.get(i).getLoanExternal());
                 	rowNext.createCell(3).setCellValue(groupLoans.get(i).getLoanPurpose());
                 	
+                	for(z=0;z<=3;z++)
+                	{
+                		
+                		rowNext.getCell(z).setCellStyle(borderStyle);
+                	}
                 	
                 		Cell cycle = rowNext.createCell(6);
-                		cycle.setCellStyle(cellStyle);
+                		cycle.setCellStyle(borderStyle);//
                 		cycle.setCellValue(groupLoans.get(i).getLoanCycle());
                
             		Cell amount = rowNext.createCell(7);
-            		amount.setCellStyle(cellStyle);
+            		amount.setCellStyle(borderStyle);//
             		amount.setCellValue(groupLoans.get(i).getAmount().floatValue());
 //            		edit
             		double loan_amt = amount.getNumericCellValue();
             		
             		Cell installment = rowNext.createCell(8);
-            		installment.setCellStyle(cellStyle);
+            		installment.setCellStyle(borderStyle);//
                 	installment.setCellValue(groupLoans.get(i).getInstallment());
                 	Cell interest = rowNext.createCell(9);
-            		interest.setCellStyle(cellStyle);
+            		interest.setCellStyle(borderStyle);//
                 	interest.setCellValue(groupLoans.get(i).getInterestRate().floatValue());
                 	Cell first = rowNext.createCell(10);
-                	first.setCellStyle(cellStyle);
+                	first.setCellStyle(borderStyle);//
                 	first.setCellValue(groupLoans.get(i).getFirstAmount().floatValue());
                 	Cell last = rowNext.createCell(11);
-                	last.setCellStyle(cellStyle);
+                	last.setCellStyle(borderStyle);//
                 	last.setCellValue(groupLoans.get(i).getLastAmount().floatValue());
                 	rowNext.createCell(4).setCellValue(groupLoans.get(i).getLoanProduct());
+                	rowNext.getCell(4).setCellStyle(borderStyle);
                 	DateFormat dateFormat1= new SimpleDateFormat("yyyy-MM-dd");
                     String strDate1 = dateFormat1.format(groupLoans.get(i).getLoanDate());
                 	rowNext.createCell(5).setCellValue(strDate1);
+                	rowNext.getCell(5).setCellStyle(borderStyle);
+
                     int columnNext=12;
                     Long loanId=groupLoans.get(i).getId();
                     final GroupRrpaymentDetailsMapper grm = new GroupRrpaymentDetailsMapper();
-                    final List <GroupRepaymentDetailsDTO> groupLoanRepayment = this.jdbcTemplate.query(grm.schema(),grm,  new Object[] { loanId});        
+                    final List <GroupRepaymentDetailsDTO> groupLoanRepayment = this.jdbcTemplate.query(grm.schema(),grm,  new Object[] { loanId});
+                   
+                    
+                	
+     	    	   
                     for(int j=0;j<groupLoanRepayment.size();j++){
-                    	if(count1==0){
+                    	if(count1==0){	
                     	header.createCell(columnNext).setCellValue("Installment Number");
+                    	header.getCell(columnNext).setCellStyle(cellStyleheader);
+                    	row1.createCell(columnNext).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext).setCellStyle(borderStyle);
+                    	
                     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                         String strDate = dateFormat.format(groupLoanRepayment.get(j).getDueDate());
             	    	scheduleSheet.setColumnWidth(columnNext+1, 4000);
             	    	row1.createCell(columnNext+1).setCellValue("Due Date - " + strDate);
+            	    	row1.getCell(columnNext+1).setCellStyle(cellStyleheader);
+            	    	
                     	header.createCell(columnNext+1).setCellValue("Client Name ");
+                    	header.getCell(columnNext+1).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext+1).setCellStyle(borderStyle);
+                    	
                     	header.createCell(columnNext+2).setCellValue("Principle ");
+                    	header.getCell(columnNext+2).setCellStyle(cellStyleheader);
+                    	row1.createCell(columnNext+2).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext+2).setCellStyle(borderStyle);
+                    	
                     	header.createCell(columnNext+3).setCellValue("Interest");
+                    	header.getCell(columnNext+3).setCellStyle(cellStyleheader);
+                    	row1.createCell(columnNext+3).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext+3).setCellStyle(borderStyle);
+                    	
                     	header.createCell(columnNext+4).setCellValue("Total Amount");
+                    	header.getCell(columnNext+4).setCellStyle(cellStyleheader);
+                    	row1.createCell(columnNext+4).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext+4).setCellStyle(borderStyle);
+                    	
             	    	row1.createCell(columnNext+5).setCellValue("Collection Date" );
+            	    	row1.getCell(columnNext+5).setCellStyle(cellStyleheader);
                     	header.createCell(columnNext+5).setCellValue("Collected Amount");
+                    	header.getCell(columnNext+5).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext+5).setCellStyle(borderStyle);
+                    	
                     	header.createCell(columnNext+6).setCellValue("Client Attendance");
+                    	header.getCell(columnNext+6).setCellStyle(cellStyleheader);
+                    	row1.createCell(columnNext+6).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext+6).setCellStyle(borderStyle);
+                    	
                     	header.createCell(columnNext+7).setCellValue("O/s Amount");
+                    	header.getCell(columnNext+7).setCellStyle(cellStyleheader);
+                    	row1.createCell(columnNext+7).setCellStyle(cellStyleheader);
+                    	totalRow.createCell(columnNext+7).setCellStyle(borderStyle);
+                    	
+                    	
+                    	
                     	String colName1=getExcelColumnName(columnNext+3);
                     	String colName2=getExcelColumnName(columnNext+4);
                     	String colName3=getExcelColumnName(columnNext+5);
                     	Cell tpr = totalRow.createCell(columnNext+2);
-                    	tpr.setCellStyle(cellStyle);
+                    	tpr.setCellStyle(borderStyle);
                     	tpr.setCellFormula("SUM("+colName1+(startRow+2)+":"+colName1+(groupLoans.size()+startRow+2)+")");
                     	Cell ti = totalRow.createCell(columnNext+3);
-                    	ti.setCellStyle(cellStyle);
+                    	ti.setCellStyle(borderStyle);
                     	ti.setCellFormula("SUM("+colName2+(startRow+2)+":"+colName2+(groupLoans.size()+startRow+2)+")");
                     	Cell ttotal = totalRow.createCell(columnNext+4);
-                    	ttotal.setCellStyle(cellStyle);
+                    	ttotal.setCellStyle(borderStyle);  
                     	ttotal.setCellFormula("SUM("+colName3+(startRow+2)+":"+colName3+(groupLoans.size()+startRow+2)+")");
-
-
+                    		
                     	}
+                    	
                     	Cell iNum = rowNext.createCell(columnNext);
-                    	iNum.setCellStyle(cellStyle);
+                    	iNum.setCellStyle(borderStyle);//
                     	
                     	iNum.setCellValue(groupLoanRepayment.get(j).getInstallmentNumber()+"/"+groupLoans.get(i).getInstallment());                   	
                     	rowNext.createCell(columnNext+1).setCellValue(groupLoans.get(i).getClientName());
+                    	rowNext.getCell(columnNext+1).setCellStyle(borderStyle);
                     	Cell principle = rowNext.createCell(columnNext+2);
-                    	principle.setCellStyle(cellStyle);
+                    	principle.setCellStyle(borderStyle);//
                     	principle.setCellValue(groupLoanRepayment.get(j).getPrincipleAmount().floatValue());
                     	Cell interest1 = rowNext.createCell(columnNext+3);
-                    	interest1.setCellStyle(cellStyle);
+                    	interest1.setCellStyle(borderStyle);//
                     	interest1.setCellValue(groupLoanRepayment.get(j).getInterestAmount().floatValue());
                     	Cell total = rowNext.createCell(columnNext+4);
-                    	total.setCellStyle(cellStyle);
+                    	total.setCellStyle(borderStyle);//
                     	total.setCellValue(groupLoanRepayment.get(j).getPrincipleAmount().add(groupLoanRepayment.get(j).getInterestAmount()).floatValue());
                     	footer1.createCell(columnNext+4).setCellValue("Initial of LO");
+                    	footer1.getCell(columnNext+4).setCellStyle(cellStyle);
                     	footer2.createCell(columnNext+4).setCellValue("Checked By BH");
+                    	footer2.getCell(columnNext+4).setCellStyle(cellStyle);
                     	footer3.createCell(columnNext+4).setCellValue("Center Leader Sign");
+                    	footer3.getCell(columnNext+4).setCellStyle(cellStyle);
+                    	
+                    	rowNext.createCell(columnNext+5);
+                    	rowNext.getCell(columnNext+5).setCellStyle(borderStyle);
+                    	rowNext.createCell(columnNext+6);
+                    	rowNext.getCell(columnNext+6).setCellStyle(borderStyle);
+                    	
 //                    	edit
                     	Cell os_amt = rowNext.createCell(columnNext+7);
-                    	os_amt.setCellStyle(cellStyle);
+                    	os_amt.setCellStyle(borderStyle);//
                     	os_amt.setCellValue(loan_amt - principle.getNumericCellValue());
                     	loan_amt = os_amt.getNumericCellValue();
                     
                     	columnNext=columnNext+8;
+                    	
                     }                   
                     count1=1;
                     startRow=startRow+1;
+                   
                 }
+    	    	
+    	    	
     	    	int noOfColumns = scheduleSheet.getRow(4).getPhysicalNumberOfCells();
     	    	 CellStyle cellStyle1 = workbook.createCellStyle();
     	         cellStyle1.setAlignment(CellStyle.ALIGN_RIGHT);
-
+    	         
+                int a=21,b=20,c=22,d=23,e=24,f=25,g=26,h=27;
+                scheduleSheet.setColumnWidth(0, 5000);
+                scheduleSheet.setColumnWidth(1, 1700);
+                scheduleSheet.setColumnWidth(2, 2700);
+                scheduleSheet.setColumnWidth(3, 2800);
+                scheduleSheet.setColumnWidth(4, 3300);
+                scheduleSheet.setColumnWidth(5, 1900);
+                scheduleSheet.setColumnWidth(6, 575);
+                scheduleSheet.setColumnWidth(7, 1350);
+                scheduleSheet.setColumnWidth(8, 600);
+                scheduleSheet.setColumnWidth(9, 1010);
+                scheduleSheet.setColumnWidth(10, 1150);
+                scheduleSheet.setColumnWidth(11, 1200);
+                scheduleSheet.setColumnWidth(12, 950);
+                scheduleSheet.setColumnWidth(13, 2900);
+                scheduleSheet.setColumnWidth(14, 1150);
+                scheduleSheet.setColumnWidth(15, 980);
+                scheduleSheet.setColumnWidth(16, 1150);
+                scheduleSheet.setColumnWidth(17, 1200);
+                scheduleSheet.setColumnWidth(18, 900);
+                scheduleSheet.setColumnWidth(19, 1170);
+                
                 for(int x=0;x<noOfColumns;x++){
                 	scheduleSheet.setDefaultColumnStyle(x, cellStyle1);
-                	scheduleSheet.autoSizeColumn(x);
+                	//scheduleSheet.autoSizeColumn(x);
+                	if( x==b)
+                	{	
+                		
+                		scheduleSheet.setColumnWidth(x,950);
+                    	b=b+8;
+                	}
+                	if( x==a )
+                	{
+                        
+                	    scheduleSheet.setColumnWidth(x, 2900);
+                	    a=a+8;
+                	if( x==21 || x==45 || x==69 ||x==93 ||x==117 ||x==141 || x==165|| x==189 )
+                		{
+                		scheduleSheet.setColumnWidth(x, 5000);
+                		}
+                	}
+                	if( x==c)
+                	{
+                		scheduleSheet.setColumnWidth(x, 1150);
+                    	c=c+8;
+                	}
+                	if( x==d)
+                	{
+                		scheduleSheet.setColumnWidth(x, 980);
+                    	d=d+8;
+                	}
+                	
+                	if( x==e)
+                	{
+                		scheduleSheet.setColumnWidth(x, 1150);
+                    	e=e+8;
+                	}
+                	if( x==f)
+                	{
+                		scheduleSheet.setColumnWidth(x, 1200);
+                    	f=f+8;
+                	}
+                	if( x==g)
+                	{
+                		scheduleSheet.setColumnWidth(x, 900);
+                    	g=g+8;
+                	}
+                	if( x==h)
+                	{
+                		scheduleSheet.setColumnWidth(x, 1170);
+                    	h=h+8;
+                	}
+                		
                 }
+               
                 return workbook;
             }
             else
@@ -589,7 +885,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     	//Habile changes query changed from AND mr2.installment =ml.number_of_repayments to and mr2.installment = `getLastInstalmentNumber`(ml.id) and changed the totalinstalments 
     	
         public String schema() {
-            return "select mc.external_id as clientId , mc.display_name as clientName , mpl.name as loanProduct , mcv.code_value as loanPurpose , ml.disbursedon_date as LoanDate ,ml.loan_product_counter as loanCycle, ml.account_no as loanNumber , ml.principal_disbursed_derived as loanAmount , ROUND(ml.nominal_interest_rate_per_period,2) as ROI , `getLastInstalmentNumber`(ml.id) as totalInstallment , ml.id as loanId , mr1.principal_amount + mr1.interest_amount as firstInstallment , mr2.principal_amount + mr2.interest_amount as lastInstallment from m_loan ml left join m_client mc on  mc.id = ml.client_id left join m_product_loan mpl on mpl.id=ml.product_id left join m_code_value mcv on mcv.id = ml.loanpurpose_cv_id left join m_loan_repayment_schedule mr1 on mr1.loan_id = ml.id and mr1.installment =1 left join m_loan_repayment_schedule mr2 on mr2.loan_id = ml.id and mr2.installment = `getLastInstalmentNumber`(ml.id) where ml.group_id=? and ml.loan_type_enum = 3 and ml.loan_status_id=300 and ml.disbursedon_date between ? and ?";
+            return "select mc.external_id as clientId , mc.display_name as clientName , mpl.name as loanProduct , mcv.code_value as loanPurpose , ml.disbursedon_date as LoanDate ,ml.loan_product_counter as loanCycle, ml.account_no as loanNumber , ml.principal_disbursed_derived as loanAmount , ROUND(ml.nominal_interest_rate_per_period,2) as ROI , `getLastInstalmentNumber`(ml.id) as totalInstallment , ml.id as loanId , mr1.principal_amount + mr1.interest_amount as firstInstallment , mr2.principal_amount + mr2.interest_amount as lastInstallment from m_loan ml left join m_client mc on  mc.id = ml.client_id left join m_product_loan mpl on mpl.id=ml.product_id left join m_code_value mcv on mcv.id = ml.loanpurpose_cv_id left join m_loan_repayment_schedule mr1 on mr1.loan_id = ml.id and mr1.installment =1 left join m_loan_repayment_schedule mr2 on mr2.loan_id = ml.id and mr2.installment = `getLastInstalmentNumber`(ml.id) where ml.group_id=? and ml.loan_type_enum = 3 and ml.loan_status_id=300 and ml.disbursedon_date between ? and ?  order by totalInstallment desc ";
         }
 
         @Override

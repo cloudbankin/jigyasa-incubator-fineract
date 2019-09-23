@@ -70,5 +70,7 @@ public class JDBCDriverConfig {
                 .append('/').append(schemaName).toString();
         return url;
     }
+    
+    
 
 }

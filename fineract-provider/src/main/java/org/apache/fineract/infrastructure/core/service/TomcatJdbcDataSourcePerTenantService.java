@@ -18,6 +18,9 @@
  */
 package org.apache.fineract.infrastructure.core.service;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +34,8 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+
 
 /**
  * Implementation that returns a new or existing tomcat 7 jdbc connection pool
@@ -87,9 +92,18 @@ public class TomcatJdbcDataSourcePerTenantService implements RoutingDataSourceSe
         // http://www.tomcatexpert.com/blog/2010/04/01/configuring-jdbc-pool-high-concurrency
 
         // see also org.apache.fineract.DataSourceProperties.setDefaults()
-    	 String jdbcUrl = this.driverConfig.constructProtocol(tenantConnectionObj.getSchemaServer(), tenantConnectionObj.getSchemaServerPort(), tenantConnectionObj.getSchemaName()) ;
+    	 
+    	String jdbcUrl = this.driverConfig.constructProtocol(tenantConnectionObj.getSchemaServer(), tenantConnectionObj.getSchemaServerPort(), tenantConnectionObj.getSchemaName()) ;
         //final String jdbcUrl = tenantConnectionObj.databaseURL();
+    	
         final PoolConfiguration poolConfiguration = new PoolProperties();
+        
+        
+           
+        
+        /*final String schemapassword=tenantConnectionObj.getSchemaPassword();
+        final String pass=decrypt(schemapassword);*/
+        
         poolConfiguration.setDriverClassName(this.driverConfig.getDriverClassName());
         poolConfiguration.setName(tenantConnectionObj.getSchemaName() + "_pool");
         poolConfiguration.setUrl(jdbcUrl);
@@ -108,6 +122,7 @@ public class TomcatJdbcDataSourcePerTenantService implements RoutingDataSourceSe
         poolConfiguration.setAbandonWhenPercentageFull(tenantConnectionObj.getAbandonWhenPercentageFull());
         poolConfiguration.setDefaultAutoCommit(true);
         
+        
         /**
          * Vishwas- Do we need to enable the below properties and add
          * ResetAbandonedTimer for long running batch Jobs?
@@ -125,4 +140,24 @@ public class TomcatJdbcDataSourcePerTenantService implements RoutingDataSourceSe
 
         return new org.apache.tomcat.jdbc.pool.DataSource(poolConfiguration);
     }
+    /*public static String decrypt(String encstr) {
+      	 
+    	  if (encstr.length() > 12) {
+    	 
+    	String cipher = encstr.substring(12);
+    	 
+    	BASE64Decoder decoder = new BASE64Decoder();
+    	 
+    	try {
+    	 
+    	    return new String(decoder.decodeBuffer(cipher));
+    	 
+    	} catch (IOException e) {
+
+    	}
+    	 
+    	  }
+    	 
+    	  return null;
+    	    }*/
 }

@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @ReportService(type = "Pentaho")
 public class PentahoReportingProcessServiceImpl implements ReportingProcessService {
@@ -206,8 +207,9 @@ public class PentahoReportingProcessServiceImpl implements ReportingProcessServi
             logger.error("error.msg.reporting.error:" + e.getMessage());
             throw new PlatformDataIntegrityException("error.msg.reporting.error", e.getMessage());
         }
+        
     }
-
+    
     private Map<String, String> getReportParams(final MultivaluedMap<String, String> queryParams) {
 
         final Map<String, String> reportParams = new HashMap<>();

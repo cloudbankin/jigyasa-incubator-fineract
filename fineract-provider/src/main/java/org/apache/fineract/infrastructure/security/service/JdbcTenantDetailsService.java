@@ -18,6 +18,8 @@
  */
 package org.apache.fineract.infrastructure.security.service;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -34,6 +36,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+
+
+
+
+
 
 /**
  * A JDBC implementation of {@link TenantDetailsService} for loading a tenants
@@ -107,14 +114,26 @@ public class JdbcTenantDetailsService implements TenantDetailsService {
 
             maxRetriesOnDeadlock = bindValueInMinMaxRange(maxRetriesOnDeadlock, 0, 15);
             maxIntervalBetweenRetries = bindValueInMinMaxRange(maxIntervalBetweenRetries, 1, 15);
+//            final String schemaPassword= decrypt(schemaPass);
+            
+            /*try{    
+            	String text = "this is just a test ";
+                FileWriter fw = new FileWriter("/home/mohan/testout.txt");
+                fw.write(text);
+                fw.close();
+            }catch(Exception e){
+            	
+            } */ 
+            
 
             return new FineractPlatformTenantConnection(connectionId, schemaName, schemaServer, schemaServerPort, schemaUsername,
-                    schemaPassword, autoUpdateEnabled, initialSize, validationInterval, removeAbandoned, removeAbandonedTimeout,
+            		schemaPassword, autoUpdateEnabled, initialSize, validationInterval, removeAbandoned, removeAbandonedTimeout,
                     logAbandoned, abandonWhenPercentageFull, maxActive, minIdle, maxIdle, suspectTimeout, timeBetweenEvictionRunsMillis,
                     minEvictableIdleTimeMillis, maxRetriesOnDeadlock, maxIntervalBetweenRetries, testOnBorrow);
             
         }
-
+        
+        
         private int bindValueInMinMaxRange(final int value, int min, int max) {
             if (value < min) {
                 return min;

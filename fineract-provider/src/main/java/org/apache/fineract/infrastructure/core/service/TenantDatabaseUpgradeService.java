@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.infrastructure.core.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Service;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+
+
 
 /**
  * A service that picks up on tenants that are configured to auto-update their
@@ -80,6 +83,8 @@ public class TenantDatabaseUpgradeService {
             }
         }
     }
+    
+    
 
     /**
      * Initializes, and if required upgrades (using Flyway) the Tenant DB

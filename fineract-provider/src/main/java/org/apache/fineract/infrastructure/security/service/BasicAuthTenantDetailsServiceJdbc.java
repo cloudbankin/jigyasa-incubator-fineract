@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.infrastructure.security.service;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -33,6 +34,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+
+
+
 
 /**
  * A JDBC implementation of {@link BasicAuthTenantDetailsService} for loading a
@@ -115,12 +119,16 @@ public class BasicAuthTenantDetailsServiceJdbc implements BasicAuthTenantDetails
 
             maxRetriesOnDeadlock = bindValueInMinMaxRange(maxRetriesOnDeadlock, 0, 15);
             maxIntervalBetweenRetries = bindValueInMinMaxRange(maxIntervalBetweenRetries, 1, 15);
+//            final String schemaPassword= decrypt(schemaPass);
+            
 
             return new FineractPlatformTenantConnection(connectionId, schemaName, schemaServer, schemaServerPort, schemaUsername,
-                    schemaPassword, autoUpdateEnabled, initialSize, validationInterval, removeAbandoned, removeAbandonedTimeout,
+            		schemaPassword, autoUpdateEnabled, initialSize, validationInterval, removeAbandoned, removeAbandonedTimeout,
                     logAbandoned, abandonWhenPercentageFull, maxActive, minIdle, maxIdle, suspectTimeout, timeBetweenEvictionRunsMillis,
                     minEvictableIdleTimeMillis, maxRetriesOnDeadlock, maxIntervalBetweenRetries, testOnBorrow);
         }
+        
+        
 
         private int bindValueInMinMaxRange(final int value, int min, int max) {
             if (value < min) {
